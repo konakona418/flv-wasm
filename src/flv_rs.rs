@@ -24,6 +24,10 @@ impl FlvRs {
         self.decoder.run()
     }
 
+    pub fn continue_decoding(&mut self) -> Result<(), Box<dyn Error>> {
+        self.decoder.continue_decoding()
+    }
+
     pub fn get_codec_conf(&mut self) -> Result<(String, String), Box<dyn Error>> {
         self.decoder.get_codec_conf()
     }

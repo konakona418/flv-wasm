@@ -53,6 +53,16 @@ pub fn start() -> Result<(), JsError> {
 }
 
 #[wasm_bindgen]
+pub fn continue_decoding() -> Result<(), JsError> {
+    match unsafe {
+        FLV_RS.as_mut().unwrap().continue_decoding()
+    } {
+        Ok(_) => Ok(()),
+        Err(e) => Err(JsError::new(&e.to_string()))
+    }
+}
+
+#[wasm_bindgen]
 pub fn stop() -> Result<(), JsError> {
     match unsafe {
         FLV_RS.as_mut().unwrap().stop()
