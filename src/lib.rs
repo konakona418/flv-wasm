@@ -78,6 +78,7 @@ pub fn stop() -> Result<(), JsError> {
 /// - The second element is the video codec configuration
 #[wasm_bindgen]
 pub fn get_codec() -> Result<JsValue, JsError> {
+    // todo: [OPTIMIZATION REQUIRED] this will block the thread. Use non-blocking methods as a substitution.
     match unsafe {
         FLV_RS.as_mut().unwrap().get_codec_conf()
     } {
@@ -94,9 +95,26 @@ pub fn get_codec() -> Result<JsValue, JsError> {
     }
 }
 
+pub fn try_get_codec() -> Result<JsValue, JsError> {
+    match unsafe {
+        FLV_RS.as_mut().unwrap().try_get_codec_conf()
+    } {
+        Some(conf) => {
+            let (audio, video) = conf;
+            Ok(
+                js_sys::Array::of2(
+                    &JsValue::from(audio),
+                    &JsValue::from(video)
+                ).into()
+            )
+        },
+        None => Err(JsError::new("No codec configuration available."))
+    }
+}
+
 /// Return the next data to be sent to the player
 /// An array of 2 elements is returned:
-/// - The first element is the media type (0: header, 1: video, 2: audio)
+/// - The first element is the media type (0: header, 1: video, 2: audio, 15: end of sequence)
 /// - The second element is the payload
 #[wasm_bindgen]
 pub fn consume() -> Result<JsValue, JsError> {
@@ -118,6 +136,11 @@ pub fn consume() -> Result<JsValue, JsError> {
                     payload = data;
                     2
                 },
+                // todo: note that the type of EndOfSequence is not used.
+                RemuxedData::EndOfSequence(_) => {
+                    payload = vec![];
+                    15
+                }
             };
             Ok(
                 js_sys::Array::of2(

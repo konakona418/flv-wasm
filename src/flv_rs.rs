@@ -32,6 +32,18 @@ impl FlvRs {
         self.decoder.get_codec_conf()
     }
 
+    pub fn try_get_codec_conf(&mut self) -> Option<(String, String)> {
+        self.decoder.try_get_codec_conf()
+    }
+
+    pub fn get_codec_conf_or_default(&mut self) -> Result<(String, String), (String, String)> {
+        self.decoder.get_codec_conf_or_default()
+    }
+
+    pub fn get_codec_conf_with_timeout(&mut self, timeout: std::time::Duration) -> Result<(String, String), Box<dyn Error>> {
+        self.decoder.get_codec_conf_with_timeout(timeout)
+    }
+
     pub fn consume(&mut self) -> Result<RemuxedData, Box<dyn Error>> {
         self.decoder.consume()
     }
